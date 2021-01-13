@@ -7,7 +7,7 @@ export const PRIVATE_KEY = "f816ae0eedd568d802070d57bf8ae2aa0f1b77b615f3828942fe
 export const CONVERSION_CURRENCY = 'nok';
 
 /// Amount of CONVERSION_CURRENCY units to purchase refillment.
-export const NEW_PURCHASE_THRESHOLD = 10;
+export const NEW_PURCHASE_THRESHOLD = 1.5; // NOK
 
 /// Where to send coins when purchasing refillment
 export const MERCHANT_DESTINATION_ADDRESS = 'bitcoincash:qzxscpfwfwmwldrsq88extjsgyfdp6zt8qz83hn7jf';
