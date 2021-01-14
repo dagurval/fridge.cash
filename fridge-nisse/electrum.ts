@@ -46,6 +46,14 @@ export async function getBalance(address: string) {
     return call('blockchain.address.get_balance', address);
 }
 
+export async function getUtxos(address: string) {
+    return call('blockchain.address.listunspent', address);
+}
+
+export async function broadcast(tx: string) {
+    return call('blockchain.transaction.broadcast', tx);
+}
+
 export async function dummyFunc(): Promise<void> {
   /* to make 'prefer default export' go away */
 }

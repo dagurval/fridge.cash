@@ -1,19 +1,23 @@
 const chalk = require('chalk');
+import { round } from './util';
 import { privateKeyToP2PKH, generatePrivateKey } from './address';
 import {
+    COIN,
     CONVERSION_CURRENCY,
     CONVERSION_UPDATE_INTERVAL,
-    PRIVATE_KEY,
     NEW_PURCHASE_THRESHOLD,
-    MERCHANT_DESTINATION_ADDRESS,
+    PRIVATE_KEY,
 } from './config';
-import { connect, disconnect, getBalance } from './electrum';
-import { createTransaction } from './transaction';
+import {
+    connect,
+    disconnect,
+    getBalance,
+} from './electrum';
+import { sendOrder } from './order';
 const log = console.log;
 const util = require('util')
 const sleep = require('sleep');
 const CoinGecko = require('coingecko-api');
-const COIN = 100000000; // satoshis per BCH
 
 if (PRIVATE_KEY === null) {
     log(chalk.red(
@@ -39,9 +43,6 @@ async function getPrice(): Promise<number> {
     return response.data['bitcoin-cash'].nok;
 }
 
-function round(value): number {
-    return Math.round(value * 100000) / 100000;
-}
 
 async function mainLoop(address: string): Promise<void> { let lastPriceUpdate = 0;
     let price: number | null = null;
@@ -62,18 +63,7 @@ async function mainLoop(address: string): Promise<void> { let lastPriceUpdate = 
         sleep.msleep(5000);
 
         if (balance_fiat >= NEW_PURCHASE_THRESHOLD) {
-            log(chalk.bgGreen("We can afford new refreshments!!"));
-            let bch_cost = NEW_PURCHASE_THRESHOLD / price as number;
-            log(bch_cost);
-            log(chalk.green(
-                `Sending ${round(bch_cost)} BCH `
-                + `(${round(NEW_PURCHASE_THRESHOLD)} ${fiat}) `
-                + `to ${MERCHANT_DESTINATION_ADDRESS}`));
-
-			// TODO: Load utxos from electrum
-
-            createTransaction(bch_cost * COIN, MERCHANT_DESTINATION_ADDRESS, [],
-				Buffer.from(PRIVATE_KEY, 'hex'));
+            await sendOrder(price, fiat, address, PRIVATE_KEY);
         }
     }
 }

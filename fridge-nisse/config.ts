@@ -17,3 +17,6 @@ export const MERCHANT_DESTINATION_EMAIL = 'merchant@example.org';
 
 /// How often to update the fiat/BCH conversion rate (in seconds)
 export const CONVERSION_UPDATE_INTERVAL = 600;
+
+/// satoshis per BCH
+export const COIN = 100000000;

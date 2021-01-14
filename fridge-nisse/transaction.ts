@@ -1,13 +1,51 @@
-export function createTransaction(
+const util = require('util')
+const chalk = require('chalk');
+const bitcore = require('bitcore-lib-cash');
+
+import { getUtxos } from './electrum';
+
+const log = console.log;
+
+export async function createTransaction(
     amount: number,
     destination: string,
-    utxos: any[],
-    utxosPrivateKey: Uint8Array)
+    spendFromAddress: string,
+    privateKeyBuffer: Uint8Array): Promise<string>
 {
-	// libauth looks like it could take a couple of days to figure out...
-	// maybe use bitcore for this??
+    // Ideally we should be using libauth for this, but it's interface
+    // is rather painful.
+    // TODO: Remove bitcore dependency and use libauth
 
-	// https://github.com/bitpay/bitcore/blob/master/packages/bitcore-lib/docs/examples.md#create-a-transaction
-	throw Error("TODO: Create merchant transaction");
+    const utxos = await getUtxos(spendFromAddress) as any;
+    const bn = bitcore.crypto.BN.fromBuffer(privateKeyBuffer);
+    const privateKey = new bitcore.PrivateKey(bn);
+
+    let inputAmount = 0;
+
+    const spendFrom = bitcore.Address(spendFromAddress);
+
+    const utxosBitcore = utxos.map((i) => {
+        inputAmount += i.value;
+        return {
+            txId: i.tx_hash,
+            outputIndex: i.tx_pos,
+            address: spendFromAddress,
+            script: new bitcore.Script(spendFrom).toHex(),
+            satoshis: i.value,
+        }
+    });
+    if (inputAmount < amount) {
+        throw Error(`Not enough funds to create transaction (${inputAmount} < ${amount})`);
+    }
+
+    const tx = new bitcore.Transaction()
+        .from(utxosBitcore)
+        .addData("autonomous fridge.cash purchase!")
+        .to(destination, amount)
+        .change(spendFrom)
+        .feePerKb(1000)
+        .sign(privateKey);
+
+    return tx.serialize();
 };
 
