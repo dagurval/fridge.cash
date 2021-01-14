@@ -43,7 +43,7 @@ export async function createTransaction(
         .addData("autonomous fridge.cash purchase!")
         .to(destination, amount)
         .change(spendFrom)
-        .feePerKb(1000)
+        .feePerKb(2000)
         .sign(privateKey);
 
     return tx.serialize();

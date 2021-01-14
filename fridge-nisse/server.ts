@@ -14,6 +14,8 @@ import {
     getBalance,
 } from './electrum';
 import { sendOrder } from './order';
+import { IncomeObserver } from './incomeobserver';
+
 const log = console.log;
 const util = require('util')
 const sleep = require('sleep');
@@ -43,28 +45,54 @@ async function getPrice(): Promise<number> {
     return response.data['bitcoin-cash'].nok;
 }
 
+async function updateFiatPrice(lastPriceUpdate: number,
+                               lastPrice: number, fiat: string) {
+    const now = getTime();
 
-async function mainLoop(address: string): Promise<void> { let lastPriceUpdate = 0;
+    if (now - lastPriceUpdate < CONVERSION_UPDATE_INTERVAL) {
+        return [lastPriceUpdate, lastPrice];
+    }
+    log(chalk.yellow(`Fetching price of ${fiat}/BCH...`));
+    const price = await getPrice();
+    log(chalk.yellow(`1 BCH = ${price} ${fiat}`));
+    return [getTime(), price];
+}
+
+async function getFridgeBalance(lastBalanceSats: number, price: number, address: string) {
+    const r = await getBalance(address) as any;
+    const balanceSatoshi = r.confirmed + r.unconfirmed;
+    const balanceFiat = (balanceSatoshi / COIN) * price as number;
+
+    if (lastBalanceSats !== balanceSatoshi) {
+        log(chalk.green(
+            `Balance on address is ${round(balanceSatoshi / COIN)} BCH `
+                    + `(${round(balanceFiat)} ${CONVERSION_CURRENCY})`));
+    }
+    return [balanceSatoshi, balanceFiat];
+}
+
+async function mainLoop(address: string): Promise<void> {
+    let lastPriceUpdate = 0;
     let price: number | null = null;
     const fiat = CONVERSION_CURRENCY;
+    const incomeObserver = new IncomeObserver();
+
+    let balanceSatoshi = 0;
+    let balanceFiat = 0;
+
+    const MAINLOOP_SLEEP = 5000; // ms
 
     while (true) {
-        if (getTime() - lastPriceUpdate >= CONVERSION_UPDATE_INTERVAL) {
-            log(chalk.yellow(`Fetching price of ${fiat}/BCH...`));
-            lastPriceUpdate = getTime();
-            price = await getPrice();
-            log(chalk.green(`1 BCH = ${price} ${fiat}`));
-        }
-        const r = await getBalance(address) as any;
-        const balance_satoshi = r.confirmed + r.unconfirmed;
-        const balance_fiat = (balance_satoshi / COIN) * price as number;
-        log(chalk.green(`Balance on address is ${round(balance_satoshi / COIN)} BCH `
-            + `(${round(balance_fiat)} ${CONVERSION_CURRENCY})`));
-        sleep.msleep(5000);
+        [lastPriceUpdate, price]
+            = await updateFiatPrice(lastPriceUpdate, price, fiat);
 
-        if (balance_fiat >= NEW_PURCHASE_THRESHOLD) {
+        [balanceSatoshi, balanceFiat]
+            = await getFridgeBalance(balanceSatoshi, price, address);
+
+        if (balanceFiat >= NEW_PURCHASE_THRESHOLD) {
             await sendOrder(price, fiat, address, PRIVATE_KEY);
         }
+        sleep.msleep(MAINLOOP_SLEEP);
     }
 }
 

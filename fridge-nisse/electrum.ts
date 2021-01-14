@@ -3,6 +3,10 @@ import { ElectrumClient, ElectrumTransport, RequestResponse } from 'electrum-cas
 let connectPromise: Promise<void> | null = null;
 let electrum: ElectrumClient | null = null;
 
+/**
+ * Look at https://bitcoincash.network/electrum for available API calls.
+ */
+
 export async function connect() {
   electrum = new ElectrumClient(
     'fridge.cash',
