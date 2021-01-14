@@ -75,7 +75,7 @@ async function mainLoop(address: string): Promise<void> {
     let lastPriceUpdate = 0;
     let price: number | null = null;
     const fiat = CONVERSION_CURRENCY;
-    const incomeObserver = new IncomeObserver();
+    const incomeObserver = new IncomeObserver(address);
 
     let balanceSatoshi = 0;
     let balanceFiat = 0;
@@ -92,6 +92,9 @@ async function mainLoop(address: string): Promise<void> {
         if (balanceFiat >= NEW_PURCHASE_THRESHOLD) {
             await sendOrder(price, fiat, address, PRIVATE_KEY);
         }
+
+        await incomeObserver.check();
+
         sleep.msleep(MAINLOOP_SLEEP);
     }
 }

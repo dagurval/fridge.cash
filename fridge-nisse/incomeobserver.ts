@@ -1,6 +1,8 @@
 const fs = require('fs');
 const HISTORY_PATH = 'history.json';
 
+import { getHistory } from './electrum';
+
 const log = console.log;
 /**
  * History structure holds track of what transactions have been processed.
@@ -38,12 +40,18 @@ function saveHistory(history) {
 export class IncomeObserver {
 
     history: any;
+    address: string;
 
-    constructor() {
+    constructor(address: string) {
         this.history = loadHistory();
+        this.address = address;
     }
 
     flush() {
         saveHistory(this.history);
+    }
+
+    async check(): Promise<void> {
+        getHistory(this.address);
     }
 }

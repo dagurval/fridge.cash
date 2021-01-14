@@ -1,20 +1,19 @@
-import { ElectrumClient, ElectrumTransport, RequestResponse } from 'electrum-cash';
+import { ElectrumCluster, ElectrumTransport, RequestResponse } from 'electrum-cash';
 
 let connectPromise: Promise<void> | null = null;
-let electrum: ElectrumClient | null = null;
+let electrum: ElectrumCluster | null = null;
 
 /**
  * Look at https://bitcoincash.network/electrum for available API calls.
  */
 
 export async function connect() {
-  electrum = new ElectrumClient(
-    'fridge.cash',
-    '1.4.2', 'bitcoincash.network',
-    ElectrumTransport.WSS.Port, ElectrumTransport.WSS.Scheme,
-  );
+  electrum = new ElectrumCluster('fridge.cash', '1.4.2', 1, 1);
+  electrum.addServer('bitcoincash.network');
+  electrum.addServer('electrs.bitcoinunlimited.info');
+// ElectrumTransport.WSS.Port, ElectrumTransport.WSS.Scheme,
   try {
-    await electrum.connect();
+    await electrum.ready();
   } catch (e) {
     console.log('Failed to connect ', e);
   }
@@ -23,7 +22,7 @@ export async function connect() {
 export async function disconnect() {
   try {
     if (electrum !== null) {
-      await electrum.disconnect();
+      await electrum.shutdown();
       electrum = null;
     }
   } catch (e) {
@@ -60,4 +59,8 @@ export async function broadcast(tx: string) {
 
 export async function dummyFunc(): Promise<void> {
   /* to make 'prefer default export' go away */
+}
+
+export async function getHistory(address: string) {
+    return call('blockchain.address.get_history', address);
 }
