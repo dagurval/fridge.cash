@@ -10,7 +10,7 @@ let electrum: ElectrumCluster | null = null;
 export async function connect() {
   electrum = new ElectrumCluster('fridge.cash', '1.4.2', 1, 1);
   electrum.addServer('bitcoincash.network');
-  electrum.addServer('electrs.bitcoinunlimited.info');
+  // electrum.addServer('electrs.bitcoinunlimited.info');
 // ElectrumTransport.WSS.Port, ElectrumTransport.WSS.Scheme,
   try {
     await electrum.ready();
@@ -41,8 +41,8 @@ async function call(method: string, ...args: any[]): Promise<RequestResponse> {
     return response;
 }
 
-export async function getTransaction(txid: string): Promise<RequestResponse> {
-  return call('blockchain.transaction.get', txid, true);
+export async function getTransaction(txid: string, verbose: boolean): Promise<RequestResponse> {
+  return call('blockchain.transaction.get', txid, verbose);
 }
 
 export async function getBalance(address: string) {
@@ -64,3 +64,4 @@ export async function dummyFunc(): Promise<void> {
 export async function getHistory(address: string) {
     return call('blockchain.address.get_history', address);
 }
+

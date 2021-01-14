@@ -89,11 +89,18 @@ async function mainLoop(address: string): Promise<void> {
         [balanceSatoshi, balanceFiat]
             = await getFridgeBalance(balanceSatoshi, price, address);
 
+        await incomeObserver.check(async (txid, sats) => {
+            // Add hooks for income received here!
+            const inFiat = `${round((sats / COIN) * price)} ${fiat}`;
+            log(chalk.bgGreen(
+                `Received ${round(sats / COIN)} BCH (${inFiat}) from ${txid}`));
+        });
+
         if (balanceFiat >= NEW_PURCHASE_THRESHOLD) {
             await sendOrder(price, fiat, address, PRIVATE_KEY);
+            // Add hooks for order sent here!
         }
 
-        await incomeObserver.check();
 
         sleep.msleep(MAINLOOP_SLEEP);
     }
