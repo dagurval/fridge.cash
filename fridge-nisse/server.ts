@@ -12,6 +12,7 @@ import {
     connect,
     disconnect,
     getBalance,
+    subscribeAddress,
 } from './electrum';
 import { sendOrder } from './order';
 import { IncomeObserver } from './incomeobserver';
@@ -96,15 +97,16 @@ async function main(): Promise<void> {
     let price: number | null = null;
     const fiat = CONVERSION_CURRENCY;
     const incomeObserver = new IncomeObserver(address);
-
     let balanceSatoshi = 0;
     let balanceFiat = 0;
+    [balanceSatoshi, balanceFiat]
+        = await getFridgeBalance(balanceSatoshi, price, address);
 
     const MAINLOOP_SLEEP = 1000; // ms
 
     let busy = false;
 
-    setInterval(async () => {
+    let innerLoop = async () => {
         if (busy) {
             return;
         }
@@ -118,16 +120,16 @@ async function main(): Promise<void> {
 
             await incomeObserver.check(async (txid, sats) => {
                 // Add hooks for income received here!
-                const inFiat = `${round((sats / COIN) * price)} ${fiat}`;
+                const inFiat = Math.round(((sats / COIN) * price) * 100) / 100;
                 log(chalk.bgGreen(
                     `Received ${round(sats / COIN)} BCH (${inFiat}) from ${txid}`));
                 fridgeState.onPaymentReceived(sats);
                 io.emit('payment', { inFiat, txid, sats, bch: round(sats / COIN) });
                 io.emit('fridge', fridgeState.get());
+                [balanceSatoshi, balanceFiat] = await getFridgeBalance(
+                    balanceSatoshi, price, address);
             });
 
-            [balanceSatoshi, balanceFiat]
-                = await getFridgeBalance(balanceSatoshi, price, address);
 
             if (balanceFiat >= NEW_PURCHASE_THRESHOLD) {
                 await sendOrder(price, fiat, address, PRIVATE_KEY);
@@ -137,7 +139,14 @@ async function main(): Promise<void> {
             console.log(e);
         }
         busy = false;
-    }, 2000, 'mainLoop');
+    };
+    setInterval(innerLoop, 2000, 'mainLoop');
+
+    // trigger instantly on electrum notification
+    subscribeAddress(address, async () => {
+        io.emit('electrum-notification', 'address');
+        await innerLoop();
+    });
 }
 
 main().then(console.log).catch(console.error);

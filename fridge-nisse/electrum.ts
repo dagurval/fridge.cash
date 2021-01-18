@@ -65,3 +65,11 @@ export async function getHistory(address: string) {
     return call('blockchain.address.get_history', address);
 }
 
+export async function subscribeAddress(address: string, callback: any) {
+    console.log(`Subscribing to ${address}`);
+    electrum.subscribe(async () => {
+        console.log("notification!");
+        await callback();
+    }, 'blockchain.address.subscribe', address);
+}
+

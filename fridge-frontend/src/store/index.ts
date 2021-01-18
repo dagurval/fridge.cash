@@ -31,7 +31,8 @@ export default new Vuex.Store({
     soldUnits: 0,
     profit: 0.1,
     fridgeAddress: "",
-    paymentReceived: ""
+    paymentReceived: "",
+    showSpinner: false,
   },
   getters: {
     bchUnitPrice: state => {
@@ -83,6 +84,10 @@ export default new Vuex.Store({
         state.numberOfSlots = payload.numberOfSlots;
         state.orderPriceNok = payload.orderPriceNok;
         state.fridgeAddress = payload.fridgeAddress;
+    },
+
+    setShowSpinner(state, payload: boolean) {
+        state.showSpinner = payload;
     },
   },
   actions: {},

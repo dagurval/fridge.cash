@@ -5,6 +5,14 @@
         <h1 style="color: red;">Fridge is booting ...</h1>
     </div>
     <div v-else>
+    <div v-if="doShowSpinner != ''" style="position: absolute; top: 100px;
+            left: 50%; margin-left: -300px; width: 600px;
+             background-color: #1b1b1b; min-height: 400px;">
+        <h1 style="color: white;">Processing payment...
+          <b-spinner variant="success" type="grow" label="Spinning"></b-spinner>
+          </h1>
+
+    </div>
     <div v-if="getPaymentReceived != ''" style="position: absolute; top: 100px;
         left: 50%; margin-left: -300px; width: 600px;
          background-color: #1b1b1b; min-height: 400px;">
@@ -74,6 +82,10 @@ export default class Home extends Vue {
 
   get getPaymentReceived() {
     return this.$store.state.paymentReceived
+  }
+
+  get doShowSpinner() {
+    return this.$store.state.showSpinner;
   }
 }
 </script>

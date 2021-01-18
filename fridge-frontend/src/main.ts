@@ -24,6 +24,7 @@ socket.on('price', (stuff: any) => {
 });
 
 socket.on('payment', (stuff: any) => {
+    store.commit('setShowSpinner', false);
     store.commit('paymentReceived', stuff);
     setTimeout(() => {
         store.commit('paymentReceived', null);
@@ -32,6 +33,13 @@ socket.on('payment', (stuff: any) => {
 
 socket.on('fridge', (fridgeState: any) => {
     store.commit('serverFridgeUpdate', fridgeState);
+});
+
+socket.on('electrum-notification', (what: string) => {
+    store.commit('setShowSpinner', true);
+    setTimeout(() => {
+        store.commit('setShowSpinner', false);
+    }, 5000);
 });
 
 /* eslint-disable-next-line */
