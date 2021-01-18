@@ -71,7 +71,15 @@ async function getFridgeBalance(lastBalanceSats: number, price: number, address:
     return [balanceSatoshi, balanceFiat];
 }
 
-async function mainLoop(address: string): Promise<void> {
+async function main() {
+    const address = await privateKeyToP2PKH(
+        Buffer.from(PRIVATE_KEY, 'hex'));
+
+    log(chalk.green(`Fridge address is ${address}`));
+    log('Connecting to electrum server...');
+    await connect();
+    log('.. connected!');
+
     let lastPriceUpdate = 0;
     let price: number | null = null;
     const fiat = CONVERSION_CURRENCY;
@@ -82,7 +90,7 @@ async function mainLoop(address: string): Promise<void> {
 
     const MAINLOOP_SLEEP = 1000; // ms
 
-    while (true) {
+    setInterval(async () => {
         [lastPriceUpdate, price]
             = await updateFiatPrice(lastPriceUpdate, price, fiat);
 
@@ -100,29 +108,11 @@ async function mainLoop(address: string): Promise<void> {
             await sendOrder(price, fiat, address, PRIVATE_KEY);
             // Add hooks for order sent here!
         }
+    }, 2000, 'mainLoop');
 
-
-        sleep.msleep(MAINLOOP_SLEEP);
-    }
-}
-
-async function main() {
-    const fridgeAddress = await privateKeyToP2PKH(
-        Buffer.from(PRIVATE_KEY, 'hex'));
-
-    log(chalk.green(`Fridge address is ${fridgeAddress}`));
-    log('Connecting to electrum server...');
-    await connect();
-    log('.. connected!');
-
-    try {
-        await mainLoop(fridgeAddress);
-    }
-    finally {
-        disconnect();
-    }
     return "Done";
 }
 
 main().then(console.log).catch(console.error);
+
 
