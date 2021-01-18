@@ -80,7 +80,7 @@ async function mainLoop(address: string): Promise<void> {
     let balanceSatoshi = 0;
     let balanceFiat = 0;
 
-    const MAINLOOP_SLEEP = 5000; // ms
+    const MAINLOOP_SLEEP = 1000; // ms
 
     while (true) {
         [lastPriceUpdate, price]
