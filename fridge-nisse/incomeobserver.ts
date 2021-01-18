@@ -113,4 +113,9 @@ export class IncomeObserver {
             this.flush();
         }
     }
+
+    ignoreTx(txid: string) {
+        this.history[txid] = { };
+        this.flush();
+    }
 }

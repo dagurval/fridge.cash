@@ -42,6 +42,13 @@ socket.on('electrum-notification', (what: string) => {
     }, 5000);
 });
 
+socket.on('refill', (payload: any) => {
+    store.commit('setShowRefill', payload.txid);
+    setTimeout(() => {
+        store.commit('setShowRefill', "");
+    }, 10000);
+});
+
 socket.on('disconnect', () => {
     store.commit('serverFridgeUpdate', {
         slotBalance: 0,

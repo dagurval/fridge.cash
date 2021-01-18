@@ -33,6 +33,7 @@ export default new Vuex.Store({
     fridgeAddress: "",
     paymentReceived: "",
     showSpinner: false,
+    showRefill: "",
   },
   getters: {
     bchUnitPrice: state => {
@@ -88,6 +89,9 @@ export default new Vuex.Store({
 
     setShowSpinner(state, payload: boolean) {
         state.showSpinner = payload;
+    },
+    setShowRefill(state, txid: string) {
+        state.showRefill = txid;
     },
   },
   actions: {},

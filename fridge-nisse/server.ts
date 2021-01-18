@@ -132,7 +132,10 @@ async function main(): Promise<void> {
 
 
             if (balanceFiat >= NEW_PURCHASE_THRESHOLD) {
-                await sendOrder(price, fiat, address, PRIVATE_KEY);
+                const txid = await sendOrder(price, fiat, address, PRIVATE_KEY);
+                // don't consider change as purchase
+                incomeObserver.ignoreTx(txid);
+                io.emit('refill', { txid });
                 [balanceSatoshi, balanceFiat] = await getFridgeBalance(
                     balanceSatoshi, price, address);
                 // Add hooks for order sent here!

@@ -13,7 +13,7 @@ const chalk = require('chalk');
 
 export async function sendOrder(
     fiatPrice: number, fiat: string,
-    fridgeAddress: string, fridgePrivateKey): Promise<void>
+    fridgeAddress: string, fridgePrivateKey): Promise<string>
 {
     log(chalk.bgGreen("We can afford new refreshments!!"));
     let bch_cost = NEW_PURCHASE_THRESHOLD / fiatPrice;
@@ -28,7 +28,7 @@ export async function sendOrder(
             fridgeAddress,
             Buffer.from(fridgePrivateKey, 'hex'));
 
-        const txid = await broadcast(tx);
+        const txid = await broadcast(tx) as string;
         const receipt = 'https://receipt.bitcoincash.network/#/tx';
         log(chalk.bgGreen(`Transaction sent: ${receipt}/${txid}`));
 
@@ -37,5 +37,5 @@ export async function sendOrder(
         // Allow transaction to propagate before checking our balance again.
         sleep.msleep(5000);
 
-
+    return txid;
 }

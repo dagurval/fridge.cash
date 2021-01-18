@@ -19,13 +19,20 @@
         <h1 style="color: white;">{{ getPaymentReceived }}</h1>
         <img src="https://j.gifs.com/yoqG4g.gif"/>
     </div>
+    <div v-if="doShowRefill != ''" style="position: absolute; top: 100px;
+        left: 50%; margin-left: -300px; width: 600px;
+         background-color: #1b1b1b; min-height: 400px;">
+        <img src="https://media.giphy.com/media/bYvpG2zbinh3W/giphy.gif"/>
+        <h1 style="color: white;">More refreshments purchased!!</h1>
+        <p><span style="color: white;" class="text-monospace">Transaction ID: {{ doShowRefill }}</span></p>
+    </div>
     <qrcode v-bind:value="getQrString"
         :options="qrCodeOptions"></qrcode>
     <h2 style="color: white; margin-top: -1.0em;" >
         Price {{ fiatPriceHuman }} NOK <span style="font-size: 80%">
         ({{ bchPriceHuman }} BCH)</span></h2>
-        <h4 style="margin-top: 0.5em; color: #efefef;">Units left in fridge {{ remainingUnits }} 🥤.</h4>
-        <h4 style="color: #efefef;">Fridge balance {{ nokBalance | roundFiat }} NOK, refill at  {{ nokNeeded | roundFiat }} NOK.</h4>
+        <h4 style="margin-top: 0.5em; color: #efefef;">Purchasing more refreshments after {{ remainingUnits }} 🥤 sales.</h4>
+        <h4 style="color: #efefef;">Fridge balance {{ nokBalance | roundFiat }} NOK, refill after {{ nokNeeded | roundFiat }} more NOK.</h4>
 </div>
 </div>
 </template>
@@ -86,6 +93,10 @@ export default class Home extends Vue {
 
   get doShowSpinner() {
     return this.$store.state.showSpinner;
+  }
+
+  get doShowRefill() {
+    return this.$store.state.showRefill;
   }
 }
 </script>
