@@ -3,6 +3,22 @@ import Vuex from "vuex";
 
 Vue.use(Vuex);
 
+function calculateUnitPrice(state) {
+    const {
+        bchNokPrice,
+        numberOfSlots,
+        orderPriceNok,
+        bchBalance,
+        soldUnits,
+        profit
+    } = state
+
+    const nokBalance = bchNokPrice * bchBalance
+    const priceNok = ((orderPriceNok - nokBalance) / (numberOfSlots - soldUnits) ) * (1 + profit)
+
+    return priceNok/bchNokPrice
+}
+
 export default new Vuex.Store({
   state: {
     bchNokPrice: 4213.37,
@@ -10,23 +26,13 @@ export default new Vuex.Store({
     orderPriceNok: 600,
     bchBalance: 0.011866985334779525,
     soldUnits: 2,
-    profit: 0.1
+    profit: 0.1,
+    fridgeAddress: "bitcoincash:qrsa5cfu9scd22yy6fq6854sg2txpvqpxu9w45ry8e",
+
   },
   getters: {
     bchUnitPrice: state => {
-      const {
-        bchNokPrice,
-        numberOfSlots,
-        orderPriceNok,
-        bchBalance,
-        soldUnits,
-        profit
-      } = state
-    
-      const nokBalance = bchNokPrice * bchBalance
-      const priceNok = ((orderPriceNok - nokBalance) / (numberOfSlots - soldUnits) ) * (1 + profit)
-    
-      return priceNok/bchNokPrice
+      return calculateUnitPrice(state);
     },
     remainingUnits: state => {
       return state.numberOfSlots-state.soldUnits
@@ -36,7 +42,10 @@ export default new Vuex.Store({
     },
     nokNeeded: state => {
       return state.orderPriceNok - (state.bchBalance*state.bchNokPrice)
-    }
+    },
+    qrString: state => {
+      return `${state.fridgeAddress}?amount=${calculateUnitPrice(state)}`
+    },
   },
   mutations: {
     unitSold (state) {

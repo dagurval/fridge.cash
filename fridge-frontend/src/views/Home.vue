@@ -1,11 +1,12 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/qr.png" />
+    <qrcode v-bind:value="getQrString" :options="{ width: 400 }"></qrcode>
     <h3>Price {{bchPrice}}</h3>
     <h3>Balance {{bchBalance}}</h3>
     <h3>BalanceNok {{nokBalance}}</h3>
     <h3>needed brfore buy {{nokNeeded}}</h3>
     <h3>Units left: {{remainingUnits}}</h3>
+    <h3>{{getQrString}}</h3>
 
     <button v-on:click='setNewBalance'>asdasd</button>
   </div>
@@ -34,6 +35,12 @@ export default class Home extends Vue {
   }
   get nokNeeded() {
     return this.$store.getters.nokNeeded
+  }
+  get getAddress() {
+    return this.$store.state.fridgeAddress
+  }
+  get getQrString() {
+    return this.$store.getters.qrString
   }
 }
 </script>
