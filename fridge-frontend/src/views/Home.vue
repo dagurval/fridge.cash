@@ -24,7 +24,7 @@
          background-color: #1b1b1b; min-height: 400px;">
         <img src="https://media.giphy.com/media/bYvpG2zbinh3W/giphy.gif"/>
         <h1 style="color: white;">More refreshments purchased!!</h1>
-        <p><span style="color: white;" class="text-monospace">Transaction ID: {{ doShowRefill }}</span></p>
+        <p><span style="color: white; font-size: 80%" class="text-monospace">Transaction ID: {{ doShowRefill }}</span></p>
     </div>
     <qrcode v-bind:value="getQrString"
         :options="qrCodeOptions"></qrcode>
