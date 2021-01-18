@@ -133,6 +133,8 @@ async function main(): Promise<void> {
 
             if (balanceFiat >= NEW_PURCHASE_THRESHOLD) {
                 await sendOrder(price, fiat, address, PRIVATE_KEY);
+                [balanceSatoshi, balanceFiat] = await getFridgeBalance(
+                    balanceSatoshi, price, address);
                 // Add hooks for order sent here!
             }
         } catch (e) {

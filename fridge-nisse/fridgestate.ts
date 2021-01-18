@@ -41,6 +41,10 @@ export class FridgeState {
     onPaymentReceived(income: number) {
         this.state.soldUnits += 1;
         this.state.slotBalance += income;
+        if (this.state.soldUnits >= this.state.numberOfSlots) {
+            this.state.soldUnits = 0;
+            this.state.slotBalance = 0;
+        }
         this.flush();
     }
 
