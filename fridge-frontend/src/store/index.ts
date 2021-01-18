@@ -24,13 +24,13 @@ function calculateUnitPrice(state: any) {
 
 export default new Vuex.Store({
   state: {
-    bchNokPrice: 4213.37,
-    numberOfSlots: 24,
-    orderPriceNok: 600,
+    bchNokPrice: 0,
+    numberOfSlots: 0,
+    orderPriceNok: 0,
     bchBalance: 0.0,
     soldUnits: 0,
     profit: 0.1,
-    fridgeAddress: "bitcoincash:qrsa5cfu9scd22yy6fq6854sg2txpvqpxu9w45ry8e",
+    fridgeAddress: "",
     paymentReceived: ""
   },
   getters: {
@@ -73,7 +73,7 @@ export default new Vuex.Store({
             state.paymentReceived = "";
             return;
         }
-        state.paymentReceived = `Payment of ${payload.bch} (${payload.inFiat} NOK) received!`;
+        state.paymentReceived = `Payment of ${payload.bch} BCH (${payload.inFiat} NOK) received!`;
     },
     serverFridgeUpdate(state, payload: any) {
         // TODO: We should use satoshis internally.
@@ -82,6 +82,7 @@ export default new Vuex.Store({
         state.soldUnits = payload.soldUnits;
         state.numberOfSlots = payload.numberOfSlots;
         state.orderPriceNok = payload.orderPriceNok;
+        state.fridgeAddress = payload.fridgeAddress;
     },
   },
   actions: {},

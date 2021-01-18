@@ -1,7 +1,8 @@
 /// Private key for wallet. Set to null to generate a private key and exit.
 /// If the key below starts with 'f816', it's the unsecure DEMO KEY!!
 /// TODO: Switch to WIF encoding, rather than raw hex.
-export const PRIVATE_KEY = "f816ae0eedd568d802070d57bf8ae2aa0f1b77b615f3828942fe2322114a65be"
+// export const PRIVATE_KEY = "f816ae0eedd568d802070d57bf8ae2aa0f1b77b615f3828942fe2322114a65be"
+export const PRIVATE_KEY = "3e5c78b733081daca02d94a73e854b1d32c0732b339caae0525c8e1fc7799421";
 
 /// Set to null if refill purchases are priced in BCH
 export const CONVERSION_CURRENCY = 'nok';

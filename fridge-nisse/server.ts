@@ -82,11 +82,10 @@ async function getFridgeBalance(lastBalanceSats: number, price: number, address:
     return [balanceSatoshi, balanceFiat];
 }
 
-const fridgeState = new FridgeState();
-
+let fridgeState = null;
 async function main(): Promise<void> {
-    const address = await privateKeyToP2PKH(
-        Buffer.from(PRIVATE_KEY, 'hex'));
+    const address = await privateKeyToP2PKH(Buffer.from(PRIVATE_KEY, 'hex'));
+    fridgeState = new FridgeState(address);
 
     log(chalk.green(`Fridge address is ${address}`));
     log('Connecting to electrum server...');
@@ -150,7 +149,9 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
   console.log('a fridge connected');
-  socket.emit('fridge', fridgeState.get());
+  if (fridgeState !== null) {
+    socket.emit('fridge', fridgeState.get());
+  }
   socket.on('disconnect', () => {
       console.log('fridge disconnected');
   });

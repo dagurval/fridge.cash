@@ -13,6 +13,7 @@ function loadFridgeState() {
             numberOfSlots: 24,
             slotBalance: 0,
             orderPriceNok: NEW_PURCHASE_THRESHOLD,
+            fridgeAddress: "",
         });
         return loadFridgeState();
     }
@@ -30,15 +31,17 @@ function saveFridgeState(state) {
 export class FridgeState {
     state: any;
 
-    constructor() {
+    constructor(address: string) {
         this.state = loadFridgeState();
         this.state.orderPriceNok = NEW_PURCHASE_THRESHOLD;
+        this.state.fridgeAddress = address;
         log(`Loaded fridge state ${util.inspect(this.state)}.`);
     }
 
     onPaymentReceived(income: number) {
         this.state.soldUnits += 1;
         this.state.slotBalance += income;
+        this.flush();
     }
 
     flush() {
