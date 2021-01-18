@@ -23,6 +23,13 @@ socket.on('price', (stuff: any) => {
     });
 });
 
+socket.on('payment', (stuff: any) => {
+    store.commit('paymentReceived', stuff);
+    setTimeout(() => {
+        store.commit('paymentReceived', null);
+    }, 10000);
+});
+
 /* eslint-disable-next-line */
 const VueQrcode = require('@chenfengyuan/vue-qrcode');
 

@@ -111,8 +111,6 @@ async function main(): Promise<void> {
             [lastPriceUpdate, price]
                 = await updateFiatPrice(lastPriceUpdate, price, fiat);
 
-            [balanceSatoshi, balanceFiat]
-                = await getFridgeBalance(balanceSatoshi, price, address);
 
             io.emit('price', { fiat, price });
 
@@ -121,8 +119,11 @@ async function main(): Promise<void> {
                 const inFiat = `${round((sats / COIN) * price)} ${fiat}`;
                 log(chalk.bgGreen(
                     `Received ${round(sats / COIN)} BCH (${inFiat}) from ${txid}`));
-                io.emit('payment', { inFiat, txid, sats });
+                io.emit('payment', { inFiat, txid, sats, bch: round(sats / COIN) });
             });
+
+            [balanceSatoshi, balanceFiat]
+                = await getFridgeBalance(balanceSatoshi, price, address);
 
             if (balanceFiat >= NEW_PURCHASE_THRESHOLD) {
                 await sendOrder(price, fiat, address, PRIVATE_KEY);

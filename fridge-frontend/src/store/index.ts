@@ -25,11 +25,11 @@ export default new Vuex.Store({
     bchNokPrice: 4213.37,
     numberOfSlots: 24,
     orderPriceNok: 600,
-    bchBalance: 0.011866985334779525,
-    soldUnits: 2,
+    bchBalance: 0.0,
+    soldUnits: 0,
     profit: 0.1,
     fridgeAddress: "bitcoincash:qrsa5cfu9scd22yy6fq6854sg2txpvqpxu9w45ry8e",
-
+    paymentReceived: ""
   },
   getters: {
     bchUnitPrice: state => {
@@ -66,6 +66,15 @@ export default new Vuex.Store({
       state.numberOfSlots = state.numberOfSlots - state.soldUnits + unitCount
       state.soldUnits = 0
     },
+    paymentReceived(state, payload: any) {
+        if (payload === null) {
+            state.paymentReceived = "";
+            return;
+        }
+        state.bchBalance += payload.bch;
+        state.soldUnits += 1;
+        state.paymentReceived = `Payment of ${payload.bch} (${payload.inFiat} NOK) received!`;
+    }
   },
   actions: {},
   modules: {}

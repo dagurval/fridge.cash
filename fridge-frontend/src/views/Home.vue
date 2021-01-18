@@ -1,6 +1,12 @@
 <template>
   <div class="home">
     <h1 style="color: #5dcb79">Purchase Club Mate</h1>
+    <div v-if="getPaymentReceived != ''" style="position: absolute; top: 100px;
+        left: 50%; margin-left: -300px; width: 600px;
+         background-color: #1b1b1b; min-height: 400px;">
+        <h1 style="color: white;">{{ getPaymentReceived }}</h1>
+        <img src="https://j.gifs.com/yoqG4g.gif"/>
+    </div>
     <qrcode v-bind:value="getQrString"
         :options="qrCodeOptions"></qrcode>
     <h2 style="color: white; margin-top: -1.0em;" >
@@ -12,13 +18,11 @@
         Price {{bchPrice}},
         Balance {{bchBalance}},
         BalanceNok {{nokBalance}},
-        needed brfore buy {{nokNeeded}},
+        needed before buy {{nokNeeded}},
         Units left: {{remainingUnits}},
 </p>
 </div>
 
-
-    <button v-on:click='setNewBalance'>asdasd</button>
   </div>
 </template>
 
@@ -66,6 +70,10 @@ export default class Home extends Vue {
   }
   get getQrString() {
     return this.$store.getters.qrString
+  }
+
+  get getPaymentReceived() {
+    return this.$store.state.paymentReceived
   }
 }
 </script>
