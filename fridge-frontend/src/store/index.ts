@@ -3,7 +3,8 @@ import Vuex from "vuex";
 
 Vue.use(Vuex);
 
-function calculateUnitPrice(state) {
+/* eslint-disable-next-line */
+function calculateUnitPrice(state: any) {
     const {
         bchNokPrice,
         numberOfSlots,
@@ -58,7 +59,7 @@ export default new Vuex.Store({
     },
     setBchNokPrice(state, payload:{price:number}) {
       const { price } = payload
-      state.bchBalance = price
+      state.bchNokPrice = price
     },
     loadFridge(state, payload:{unitCount:number}){
       const {unitCount} = payload

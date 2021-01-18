@@ -16,6 +16,16 @@ import {
 import { sendOrder } from './order';
 import { IncomeObserver } from './incomeobserver';
 
+const app = require('express')();
+const http = require('http').createServer(app);
+const io = require("socket.io")(http, {
+    cors: {
+        origin: "http://localhost:8080",
+        methods: ["GET", "POST"]
+    }
+});
+const cors = require('cors')
+
 const log = console.log;
 const util = require('util')
 const sleep = require('sleep');
@@ -71,7 +81,7 @@ async function getFridgeBalance(lastBalanceSats: number, price: number, address:
     return [balanceSatoshi, balanceFiat];
 }
 
-async function main() {
+async function main(): Promise<void> {
     const address = await privateKeyToP2PKH(
         Buffer.from(PRIVATE_KEY, 'hex'));
 
@@ -90,29 +100,55 @@ async function main() {
 
     const MAINLOOP_SLEEP = 1000; // ms
 
+    let busy = false;
+
     setInterval(async () => {
-        [lastPriceUpdate, price]
-            = await updateFiatPrice(lastPriceUpdate, price, fiat);
-
-        [balanceSatoshi, balanceFiat]
-            = await getFridgeBalance(balanceSatoshi, price, address);
-
-        await incomeObserver.check(async (txid, sats) => {
-            // Add hooks for income received here!
-            const inFiat = `${round((sats / COIN) * price)} ${fiat}`;
-            log(chalk.bgGreen(
-                `Received ${round(sats / COIN)} BCH (${inFiat}) from ${txid}`));
-        });
-
-        if (balanceFiat >= NEW_PURCHASE_THRESHOLD) {
-            await sendOrder(price, fiat, address, PRIVATE_KEY);
-            // Add hooks for order sent here!
+        if (busy) {
+            return;
         }
-    }, 2000, 'mainLoop');
+        busy = true;
+        try {
+            [lastPriceUpdate, price]
+                = await updateFiatPrice(lastPriceUpdate, price, fiat);
 
-    return "Done";
+            [balanceSatoshi, balanceFiat]
+                = await getFridgeBalance(balanceSatoshi, price, address);
+
+            io.emit('price', { fiat, price });
+
+            await incomeObserver.check(async (txid, sats) => {
+                // Add hooks for income received here!
+                const inFiat = `${round((sats / COIN) * price)} ${fiat}`;
+                log(chalk.bgGreen(
+                    `Received ${round(sats / COIN)} BCH (${inFiat}) from ${txid}`));
+                io.emit('payment', { inFiat, txid, sats });
+            });
+
+            if (balanceFiat >= NEW_PURCHASE_THRESHOLD) {
+                await sendOrder(price, fiat, address, PRIVATE_KEY);
+                // Add hooks for order sent here!
+            }
+        } catch (e) {
+            console.log(e);
+        }
+        busy = false;
+    }, 2000, 'mainLoop');
 }
 
 main().then(console.log).catch(console.error);
 
+app.use(cors());
+app.get('/', (req, res) => {
+  res.send('<h1>Hello world</h1>');
+});
 
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  socket.on('disconnect', () => {
+      console.log('user disconnected');
+  });
+});
+
+http.listen(3000, () => {
+  console.log('listening on *:3000');
+});
