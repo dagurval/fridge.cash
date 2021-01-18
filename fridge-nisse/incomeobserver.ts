@@ -102,13 +102,8 @@ export class IncomeObserver {
             }
             catch (e) {
                 log(chalk.red(`onIncome callback failed ${e}`))
-                log(chalk.red(`Assuming ${txid} is unprocessed due to error`));
-                continue;
             }
             this.history[txid] = { };
-        }
-        if (unprocessed.length > 0) {
-            // Store list of processed transactions.
             log(`Flushing ${Object.keys(this.history).length} transactions.`);
             this.flush();
         }
