@@ -42,6 +42,16 @@ socket.on('electrum-notification', (what: string) => {
     }, 5000);
 });
 
+socket.on('disconnect', () => {
+    store.commit('serverFridgeUpdate', {
+        slotBalance: 0,
+        soldUnits: 0,
+        numberOfSlots: 0,
+        orderPriceNok: 0,
+        fridgeAddress: ""
+    });
+});
+
 /* eslint-disable-next-line */
 const VueQrcode = require('@chenfengyuan/vue-qrcode');
 
