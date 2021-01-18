@@ -47,9 +47,8 @@ Vue.filter('roundFiat', function (value: number) {
 export default class Home extends Vue {
 
   private qrCodeOptions = {
-    width: 600,
-    color: { dark: '#5dcb79', light: '#00000000' },
-    errorCorrectionLevel: 'high',
+    width: 500,
+    color: { dark: '#5dcb79', light: '#00000000' }
   };
 
   setNewBalance = () => {
