@@ -30,6 +30,10 @@ socket.on('payment', (stuff: any) => {
     }, 10000);
 });
 
+socket.on('fridge', (fridgeState: any) => {
+    store.commit('serverFridgeUpdate', fridgeState);
+});
+
 /* eslint-disable-next-line */
 const VueQrcode = require('@chenfengyuan/vue-qrcode');
 

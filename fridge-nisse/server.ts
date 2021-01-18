@@ -15,6 +15,7 @@ import {
 } from './electrum';
 import { sendOrder } from './order';
 import { IncomeObserver } from './incomeobserver';
+import { FridgeState } from './fridgestate';
 
 const app = require('express')();
 const http = require('http').createServer(app);
@@ -81,6 +82,8 @@ async function getFridgeBalance(lastBalanceSats: number, price: number, address:
     return [balanceSatoshi, balanceFiat];
 }
 
+const fridgeState = new FridgeState();
+
 async function main(): Promise<void> {
     const address = await privateKeyToP2PKH(
         Buffer.from(PRIVATE_KEY, 'hex'));
@@ -119,7 +122,9 @@ async function main(): Promise<void> {
                 const inFiat = `${round((sats / COIN) * price)} ${fiat}`;
                 log(chalk.bgGreen(
                     `Received ${round(sats / COIN)} BCH (${inFiat}) from ${txid}`));
+                fridgeState.onPaymentReceived(sats);
                 io.emit('payment', { inFiat, txid, sats, bch: round(sats / COIN) });
+                io.emit('fridge', fridgeState.get());
             });
 
             [balanceSatoshi, balanceFiat]
@@ -144,9 +149,10 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-  console.log('a user connected');
+  console.log('a fridge connected');
+  socket.emit('fridge', fridgeState.get());
   socket.on('disconnect', () => {
-      console.log('user disconnected');
+      console.log('fridge disconnected');
   });
 });
 

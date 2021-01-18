@@ -1,5 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
+/* eslint-disable-next-line */
+const util = require('util');
 
 Vue.use(Vuex);
 
@@ -71,10 +73,16 @@ export default new Vuex.Store({
             state.paymentReceived = "";
             return;
         }
-        state.bchBalance += payload.bch;
-        state.soldUnits += 1;
         state.paymentReceived = `Payment of ${payload.bch} (${payload.inFiat} NOK) received!`;
-    }
+    },
+    serverFridgeUpdate(state, payload: any) {
+        // TODO: We should use satoshis internally.
+        console.log(`Fridge state update ${util.inspect(payload)}`);
+        state.bchBalance = payload.slotBalance / 100000000;
+        state.soldUnits = payload.soldUnits;
+        state.numberOfSlots = payload.numberOfSlots;
+        state.orderPriceNok = payload.orderPriceNok;
+    },
   },
   actions: {},
   modules: {}
